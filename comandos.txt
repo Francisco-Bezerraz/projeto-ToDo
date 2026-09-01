@@ -1,0 +1,6 @@
+// Para subir arquivos use://
+
+git push origin main
+
+// Para receber use://
+ git pull
