@@ -1,5 +1,5 @@
 :root {
-  /* Paleta Gamificada (Mario Style) */
+ 
   --sky-blue: #5c94fc;
   --mario-red: #e52521;
   --mario-yellow: #fbd000;
@@ -31,13 +31,13 @@ body {
   padding: 20px;
 }
 
-/* Animação suave para elementos interativos */
+
 button, input, textarea {
   font-family: inherit;
   transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
-/* Header */
+
 header {
   text-align: center;
   margin-bottom: 25px;
@@ -57,7 +57,7 @@ header p {
   margin-top: 5px;
 }
 
-/* Container Principal */
+
 main {
   width: 100%;
   max-width: 600px;
@@ -66,7 +66,7 @@ main {
   gap: 20px;
 }
 
-/* Cards (Estilo Bloco de Jogo) */
+
 .card {
   background-color: var(--cloud-white);
   border: 4px solid var(--text-dark);
@@ -84,7 +84,7 @@ main {
   padding-bottom: 5px;
 }
 
-/* Formulário e Inputs */
+
 .form-group {
   display: flex;
   flex-direction: column;
@@ -118,7 +118,7 @@ input[type="text"]:focus, textarea:focus {
   gap: 10px;
 }
 
-/* Botões Gamificados */
+
 .btn {
   font-family: var(--font-title);
   font-size: 1rem;
@@ -154,7 +154,7 @@ input[type="text"]:focus, textarea:focus {
   color: var(--text-dark);
 }
 
-/* Lista de Tarefas */
+
 #task-list {
   list-style: none;
   display: flex;
@@ -188,7 +188,7 @@ input[type="text"]:focus, textarea:focus {
   color: var(--mario-red);
 }
 
-/* Rodapé */
+
 footer {
   margin-top: auto;
   padding: 20px;
