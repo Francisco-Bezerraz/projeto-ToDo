@@ -1,7 +1,7 @@
-// Configuração da API
+
 const API_URL = 'http://localhost:3000/tasks';
 
-// Elementos do DOM
+
 const form = document.getElementById('task-form');
 const inputId = document.getElementById('task-id');
 const inputTitle = document.getElementById('task-title');
@@ -15,15 +15,14 @@ const stateEmpty = document.getElementById('state-empty');
 const stateError = document.getElementById('state-error');
 const btnRetry = document.getElementById('btn-retry');
 
-// Estado global para guardar as tarefas carregadas
 let tasksData = [];
 
-// Inicialização
+
 document.addEventListener('DOMContentLoaded', loadTasks);
 btnRetry.addEventListener('click', loadTasks);
 btnCancel.addEventListener('click', resetForm);
 
-// Mostra o estado correto da interface (Feedback de estado)
+
 function showState(state) {
   stateLoading.hidden = state !== 'loading';
   stateEmpty.hidden = state !== 'empty';
@@ -31,7 +30,7 @@ function showState(state) {
   taskList.hidden = state !== 'list';
 }
 
-// 1. READ: Buscar tarefas da API
+
 async function loadTasks() {
   showState('loading');
   try {
@@ -52,7 +51,7 @@ async function loadTasks() {
   }
 }
 
-// Renderizar as tarefas no HTML
+
 function renderTasks(tasks) {
   taskList.innerHTML = '';
   
@@ -60,7 +59,7 @@ function renderTasks(tasks) {
     const li = document.createElement('li');
     li.className = task.completed ? 'task-completed' : '';
     
-    // Formatação de datas para exibição
+    
     const createdDate = new Date(task.createdAt).toLocaleDateString('pt-BR');
     
     li.innerHTML = `
@@ -88,13 +87,11 @@ function renderTasks(tasks) {
   });
 }
 
-// Helper: Gerar ID único no formato exigido
 const generateId = () => 'tsk_' + Math.random().toString(36).substr(2, 9);
 
-// Helper: Pegar data/hora atual em ISO 8601 UTC
 const getNowISO = () => new Date().toISOString();
 
-// Formulário de submissão (Criar ou Editar)
+
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   
