@@ -4,7 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Task Quest! ⚔️ - Seu Gerenciador de Tarefas</title>
-  <link rel="stylesheet" href="style.css">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caacupe&family=Marcellus&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/assets/CSS/style.css">
 </head>
 <body>
 
@@ -15,13 +20,13 @@
 
   <main>
 
-    <section aria-labelledby="form-title">
+    <section aria-labelledby="form-title" class="card">
       <h2 id="form-title">🎮 Nova Missão</h2>
       
       <form id="task-form">
         <input type="hidden" id="task-id">
 
-        <div>
+        <div class="form-group">
           <label for="task-title">Título da Missão *</label>
           <input 
             type="text" 
@@ -32,7 +37,7 @@
           >
         </div>
 
-        <div>
+        <div class="form-group">
           <label for="task-description">Detalhes da Aventura</label>
           <textarea 
             id="task-description" 
@@ -42,29 +47,31 @@
           ></textarea>
         </div>
 
-        <button type="submit" id="btn-save">🚀 Lançar Missão</button>
-        <button type="button" id="btn-cancel" hidden>❌ Cancelar</button>
+        <div class="button-group">
+          <button type="submit" id="btn-save" class="btn btn-primary">🚀 Lançar Missão</button>
+          <button type="button" id="btn-cancel" class="btn btn-danger" hidden>❌ Cancelar</button>
+        </div>
       </form>
     </section>
 
-    <section aria-labelledby="list-title">
+    <section aria-labelledby="list-title" class="card">
       <h2 id="list-title">📜 Quadro de Missões</h2>
 
-      <div id="state-loading" role="status" aria-live="polite">
+      <div id="state-loading" role="status" aria-live="polite" class="status-msg">
         <p>🔮 Invocando suas missões do servidor...</p>
       </div>
 
-      <div id="state-empty" hidden>
+      <div id="state-empty" class="status-msg" hidden>
         <p>🎉 Nenhuma missão pendente! Você venceu por hoje!</p>
       </div>
 
-      <div id="state-error" role="alert" hidden>
+      <div id="state-error" role="alert" class="status-msg error" hidden>
         <p>💥 Ops! O monstro da rede interrompeu a conexão com a API.</p>
-        <button type="button" id="btn-retry">🔄 Tentar Novamente</button>
+        <button type="button" id="btn-retry" class="btn btn-warning">🔄 Tentar Novamente</button>
       </div>
 
       <ul id="task-list" aria-label="Lista de tarefas">
-        </ul>
+      </ul>
     </section>
 
   </main>
@@ -73,6 +80,6 @@
     <p>Feito🚀</p>
   </footer>
 
-  <script src="app.js"></script>
+  <script src="/assets/JS/app.js"></script>
 </body>
 </html>

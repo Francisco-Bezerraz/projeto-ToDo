@@ -1,0 +1,198 @@
+:root {
+  /* Paleta Gamificada (Mario Style) */
+  --sky-blue: #5c94fc;
+  --mario-red: #e52521;
+  --mario-yellow: #fbd000;
+  --mario-green: #43b047;
+  --pipe-green-dark: #1f6d23;
+  --brick-brown: #a04000;
+  --cloud-white: #ffffff;
+  --text-dark: #111111;
+  
+  /* Fontes */
+  --font-title: 'Caacupé', cursive, sans-serif;
+  --font-body: 'Marcellus', serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--sky-blue);
+  color: var(--text-dark);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+/* Animação suave para elementos interativos */
+button, input, textarea {
+  font-family: inherit;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+/* Header */
+header {
+  text-align: center;
+  margin-bottom: 25px;
+  color: var(--cloud-white);
+  text-shadow: 3px 3px 0 var(--text-dark);
+}
+
+header h1 {
+  font-family: var(--font-title);
+  font-size: 2.8rem;
+  color: var(--mario-yellow);
+  letter-spacing: 1px;
+}
+
+header p {
+  font-size: 1.2rem;
+  margin-top: 5px;
+}
+
+/* Container Principal */
+main {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Cards (Estilo Bloco de Jogo) */
+.card {
+  background-color: var(--cloud-white);
+  border: 4px solid var(--text-dark);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 6px 6px 0px var(--text-dark);
+}
+
+.card h2 {
+  font-family: var(--font-title);
+  font-size: 1.8rem;
+  color: var(--mario-red);
+  margin-bottom: 15px;
+  border-bottom: 3px dashed var(--mario-yellow);
+  padding-bottom: 5px;
+}
+
+/* Formulário e Inputs */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 15px;
+}
+
+label {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+input[type="text"], textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 3px solid var(--text-dark);
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: #fff9e6;
+  outline: none;
+}
+
+input[type="text"]:focus, textarea:focus {
+  border-color: var(--mario-red);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 2px var(--mario-yellow);
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+}
+
+/* Botões Gamificados */
+.btn {
+  font-family: var(--font-title);
+  font-size: 1rem;
+  padding: 12px 20px;
+  border: 3px solid var(--text-dark);
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 var(--text-dark);
+  font-weight: bold;
+}
+
+.btn:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 var(--text-dark);
+}
+
+.btn-primary {
+  background-color: var(--mario-green);
+  color: var(--cloud-white);
+}
+
+.btn-primary:hover {
+  background-color: var(--pipe-green-dark);
+}
+
+.btn-danger {
+  background-color: var(--mario-red);
+  color: var(--cloud-white);
+}
+
+.btn-warning {
+  background-color: var(--mario-yellow);
+  color: var(--text-dark);
+}
+
+/* Lista de Tarefas */
+#task-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#task-list li {
+  background-color: #fff;
+  border: 3px solid var(--text-dark);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 3px 3px 0 var(--text-dark);
+}
+
+/* Estados de Mensagens */
+.status-msg {
+  text-align: center;
+  padding: 15px;
+  font-weight: bold;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  border: 2px dashed var(--text-dark);
+}
+
+.status-msg.error {
+  background-color: #ffe6e6;
+  color: var(--mario-red);
+}
+
+/* Rodapé */
+footer {
+  margin-top: auto;
+  padding: 20px;
+  color: var(--cloud-white);
+  font-family: var(--font-title);
+  text-shadow: 2px 2px 0 var(--text-dark);
+}
