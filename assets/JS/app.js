@@ -102,7 +102,7 @@ form.addEventListener('submit', async (e) => {
   const descValue = inputDesc.value.trim();
   const idValue = inputId.value;
 
-  // Validação: Título não pode ser vazio
+ 
   if (!titleValue) {
     alert('O título da missão é obrigatório!');
     return;
@@ -116,10 +116,10 @@ form.addEventListener('submit', async (e) => {
 
   try {
     if (idValue) {
-      // UPDATE: Se tem ID, é uma edição
+      
       await updateTaskAPI(idValue, taskData);
     } else {
-      // CREATE: Se não tem ID, é uma nova tarefa
+     
       taskData.id = generateId();
       taskData.completed = false;
       taskData.createdAt = getNowISO();
@@ -127,14 +127,14 @@ form.addEventListener('submit', async (e) => {
     }
     
     resetForm();
-    await loadTasks(); // Recarrega a lista
+    await loadTasks(); 
   } catch (error) {
     alert('Ocorreu um erro ao salvar a missão. O monstro da rede atacou!');
     console.error(error);
   }
 });
 
-// 2. CREATE: Enviar nova tarefa para a API
+
 async function createTaskAPI(task) {
   const response = await fetch(API_URL, {
     method: 'POST',
@@ -144,7 +144,7 @@ async function createTaskAPI(task) {
   if (!response.ok) throw new Error('Erro ao criar tarefa');
 }
 
-// Preparar formulário para edição
+
 window.editTask = (id) => {
   const task = tasksData.find(t => t.id === id);
   if (!task) return;
@@ -156,11 +156,11 @@ window.editTask = (id) => {
   btnSave.innerHTML = '💾 Salvar Alterações';
   btnCancel.hidden = false;
   
-  // Rola a página para o formulário
+ 
   document.getElementById('form-title').scrollIntoView({ behavior: 'smooth' });
 };
 
-// 3. UPDATE: Enviar alterações para a API via PATCH
+
 async function updateTaskAPI(id, updates) {
   const response = await fetch(`${API_URL}/${id}`, {
     method: 'PATCH',
@@ -170,7 +170,7 @@ async function updateTaskAPI(id, updates) {
   if (!response.ok) throw new Error('Erro ao atualizar tarefa');
 }
 
-// 4. ALTERNAR CONCLUSÃO: Marcar/desmarcar como feita
+
 window.toggleTask = async (id) => {
   const task = tasksData.find(t => t.id === id);
   if (!task) return;
@@ -188,9 +188,9 @@ window.toggleTask = async (id) => {
   }
 };
 
-// 5. DELETE: Apagar tarefa com confirmação
+
 window.deleteTask = async (id) => {
-  // Proteção contra remoção acidental
+ 
   const confirmDelete = confirm('⚠️ Tem certeza que deseja abandonar esta missão permanentemente?');
   
   if (!confirmDelete) return;
@@ -208,7 +208,7 @@ window.deleteTask = async (id) => {
   }
 };
 
-// Limpar formulário e voltar ao modo "Criar"
+
 function resetForm() {
   form.reset();
   inputId.value = '';

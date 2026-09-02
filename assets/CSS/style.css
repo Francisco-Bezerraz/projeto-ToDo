@@ -173,7 +173,7 @@ input[type="text"]:focus, textarea:focus {
   box-shadow: 3px 3px 0 var(--text-dark);
 }
 
-/* Estados de Mensagens */
+
 .status-msg {
   text-align: center;
   padding: 15px;
