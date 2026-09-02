@@ -4,3 +4,9 @@ git push origin main
 
 // Para receber use://
  git pull
+
+ // Comando para iniciar o servidor: //
+ json-server --watch db.json --port 3000
+
+//Comando para tirar a trava de segurança do Windows: // 
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
