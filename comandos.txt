@@ -5,6 +5,9 @@ git push origin main
 // Para receber use://
  git pull
 
+
+// npm install -g json-server@0.17.4
+
  // Comando para iniciar o servidor: //
  json-server --watch db.json --port 3000
 
