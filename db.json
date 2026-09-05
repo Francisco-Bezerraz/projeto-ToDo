@@ -2,19 +2,19 @@
   "tasks": [
     {
       "id": "tsk_a1b2c3d0001",
-      "title": "Tarefa 3",
-      "description": "",
-      "completed": false,
-      "createdAt": "2026-08-11T13:59:00.000Z",
-      "updatedAt": "2026-08-11T13:55:31.218Z"
-    },
-    {
-      "id": "tsk_a1b2c3d0001",
       "title": "Tarefa 4",
       "description": "",
-      "completed": false,
+      "completed": true,
       "createdAt": "2026-08-11T13:59:00.000Z",
-      "updatedAt": "2026-08-11T13:55:31.218Z"
+      "updatedAt": "2026-09-05T01:31:03.647Z"
+    },
+    {
+      "title": "Ola",
+      "description": "",
+      "updatedAt": "2026-09-05T01:26:47.182Z",
+      "id": "tsk_hgkpzvz69",
+      "completed": true,
+      "createdAt": "2026-09-05T01:10:11.544Z"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
