@@ -13,7 +13,13 @@ const stateEmpty = document.getElementById('state-empty');
 const stateError = document.getElementById('state-error');
 const btnRetry = document.getElementById('btn-retry');
 
+
+// Controle de clicks
+
+
 let tasksData = [];
+let feedbackTimeout;
+
 
 document.addEventListener('DOMContentLoaded', loadTasks);
 btnRetry.addEventListener('click', loadTasks);
@@ -132,12 +138,11 @@ window.editTask = (id) => {
   const task = tasksData.find(t => t.id === id);
   if (!task) return;
 
-  // Chama o feedback de edição
   showFeedback('editar');
 
   inputId.value = task.id;
   inputTitle.value = task.title;
-  inputDesc.value = task.description || ''; // Corrigido aqui (era inputDescription)
+  inputDesc.value = task.description || ''; 
   
   btnSave.innerHTML = '💾 Salvar Alterações';
   btnCancel.hidden = false;
@@ -158,7 +163,6 @@ window.toggleTask = async (id) => {
   const task = tasksData.find(t => t.id === id);
   if (!task) return;
 
-  // Chama o feedback apenas se estiver concluindo a missão
   if (!task.completed) {
     showFeedback('concluir');
   }
@@ -176,26 +180,27 @@ window.toggleTask = async (id) => {
   }
 };
 
-window.deleteTask = async (id) => {
-  const confirmDelete = confirm('⚠️ Tem certeza que deseja abandonar esta missão permanentemente?');
-  
-  if (!confirmDelete) return;
+// Nova lógica que aciona a confirmação imersiva
+window.deleteTask = (id) => {
+  askDeleteConfirm(id);
+};
 
+// Executa a deleção na API apenas se o usuário confirmar
+async function executeDelete(id) {
   try {
     const response = await fetch(`${API_URL}/${id}`, {
       method: 'DELETE'
     });
     if (!response.ok) throw new Error('Erro ao deletar tarefa');
     
-    // Chama o feedback de exclusão
+    // Após deletar, mostra o feedback de sucesso de exclusão por 3 segundos
     showFeedback('excluir');
-    
     await loadTasks();
   } catch (error) {
     alert('Erro ao excluir a missão.');
     console.error(error);
   }
-};
+}
 
 function resetForm() {
   form.reset();
@@ -204,47 +209,85 @@ function resetForm() {
   btnCancel.hidden = true;
 }
 
-// ==========================================
-// SISTEMA DE FEEDBACK VISUAL
-// ==========================================
+
+function askDeleteConfirm(id) {
+  const feedbackOverlay = document.getElementById('feedback-overlay');
+  const feedbackImage = document.getElementById('feedback-image');
+
+  // Limpa qualquer timer ativo
+  if (feedbackTimeout) clearTimeout(feedbackTimeout);
+
+  // Define a imagem da bomba/explosão para a pergunta
+  feedbackImage.src = './img/temCerteza.jpg';
+  
+  // Mostra o overlay e trava a animação para ele NÃO sumir sozinho
+  feedbackOverlay.hidden = false;
+  feedbackOverlay.style.animation = 'none';
+
+  // Remove botões de confirmação antigos se existirem
+  const oldBtns = document.getElementById('custom-confirm-btns');
+  if (oldBtns) oldBtns.remove();
+
+  // Cria a área dos botões de Sim/Não
+  const btnContainer = document.createElement('div');
+  btnContainer.id = 'custom-confirm-btns';
+  btnContainer.style.display = 'flex';
+  btnContainer.style.gap = '20px';
+  btnContainer.style.marginTop = '30px'; 
+
+  const btnYes = document.createElement('button');
+  btnYes.className = 'btn btn-danger';
+  btnYes.textContent = '🔥 Sim, Detonar!';
+  btnYes.onclick = async () => {
+    btnContainer.remove(); 
+    await executeDelete(id);
+  };
+
+  const btnNo = document.createElement('button');
+  btnNo.className = 'btn btn-warning';
+  btnNo.textContent = '🛡️ Não, Valeu';
+  btnNo.onclick = () => {
+    btnContainer.remove();
+    feedbackOverlay.hidden = true;
+  };
+
+  btnContainer.appendChild(btnNo);
+  btnContainer.appendChild(btnYes);
+  feedbackOverlay.appendChild(btnContainer);
+}
+
 function showFeedback(action) {
   const feedbackOverlay = document.getElementById('feedback-overlay');
   const feedbackImage = document.getElementById('feedback-image');
-  const feedbackText = document.getElementById('feedback-text');
 
-  // Dicionário de imagens e textos baseados na ação
   const feedbacks = {
-    concluir: {
-      img: 'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExMjM4cW9wZ251eGpxbTZ0amNwbnNqYmZwcGJzMnZwcGFxM3V6Z29wMSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/LMB3W50H8F53cOWTjX/giphy.gif', // GIF de Moeda/Sucesso
-      text: 'Missão Cumprida! +50 XP'
-    },
-    editar: {
-      img: 'https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExdWJ5YnB2OWgwaTV4M2s0ZGhjZGV4bGN5YmRxdGNxdXN6Y21rYW1hNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/26h0pQdlddhWYJfgc/giphy.gif', // GIF de Engrenagem/Ferramenta
-      text: 'Forjando nova estratégia...'
-    },
-    excluir: {
-      img: 'https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExOThweTNnYnVpM3VnbHpjdnQ0c2NwbGF6amMyaG1sYXd5cXF6YXZvNyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/HhTXt43pk1I1W/giphy.gif', // GIF de Explosão
-      text: 'Missão Destruída!'
-    }
+    concluir: { img: './img/blz.jpg' },
+    editar: { img: 'https://i.pinimg.com/originals/2b/cc/0e/2bcc0e11960ebe99ec2c4d402328a970.gif' },
+    excluir: { img: 'https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExOThweTNnYnVpM3VnbHpjdnQ0c2NwbGF6amMyaG1sYXd5cXF6YXZvNyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/HhTXt43pk1I1W/giphy.gif' }
   };
 
   const fb = feedbacks[action];
   if (!fb) return;
 
-  // Atualiza conteúdo
   feedbackImage.src = fb.img;
-  feedbackText.textContent = fb.text;
   
-  // Exibe o overlay
+  
+  const oldBtns = document.getElementById('custom-confirm-btns');
+  if (oldBtns) oldBtns.remove();
+
   feedbackOverlay.hidden = false;
 
-  // Reseta a animação para garantir que rode sempre que clicar
+ 
   feedbackOverlay.style.animation = 'none';
-  feedbackOverlay.offsetHeight; // Força o reflow do navegador
-  feedbackOverlay.style.animation = 'popInOut 1.5s ease-in-out forwards';
+  void feedbackOverlay.offsetWidth; 
+  feedbackOverlay.style.animation = 'fadeSlowly 10s ease-in-out forwards';
 
-  // Oculta novamente após 1.5 segundos (tempo da animação CSS)
-  setTimeout(() => {
+  if (feedbackTimeout) {
+    clearTimeout(feedbackTimeout);
+  }
+
+ 
+  feedbackTimeout = setTimeout(() => {
     feedbackOverlay.hidden = true;
-  }, 60500);
+  }, 700);
 }
