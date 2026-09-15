@@ -21,7 +21,7 @@
 body {
   font-family: var(--font-body);
   background-color: var(--sky-blue);
-  background-image: url("/img/gato1.png");
+  background-image: url("");
   color: var(--text-dark);
   min-height: 100vh;
   display: flex;
@@ -29,6 +29,7 @@ body {
   align-items: center;
   padding: 20px;
 }
+
 
 button, input, textarea {
   font-family: inherit;
