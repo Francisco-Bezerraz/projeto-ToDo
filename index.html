@@ -3,102 +3,143 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Task Quest! ⚔️ - Seu Gerenciador de Tarefas</title>
-  
+  <meta name="theme-color" content="#5c94fc">
+  <title>Task Quest! - Gerenciador de Missões</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Caacupe&family=Marcellus&display=swap" rel="stylesheet">
-  
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/CSS/style.css">
 </head>
 <body>
+  <div class="pixel-bg" aria-hidden="true">
+    <img src="/img/Gato11px.png" class="pixel-deco deco-01" alt="">
+    <img src="/img/gatopx.png" class="pixel-deco deco-02" alt="">
+    <img src="/img/GatoSF1.png" class="pixel-deco deco-03" alt="">
+    <img src="/img/GatoSF2.png" class="pixel-deco deco-04" alt="">
+    <img src="/img/gatopx.png" class="pixel-deco deco-05" alt="">
+    <img src="/img/SENAIpx.png" class="pixel-deco deco-06" alt="">
+    <img src="./img/SENAIpx.png" class="pixel-deco deco-07" alt="">
+    <img src="./img/GatoSF1.png" class="pixel-deco deco-08" alt="">
+    <img src="./img/gatopx.png" class="pixel-deco deco-09" alt="">
+    <img src="./img/GatoSF2.png" class="pixel-deco deco-10" alt="">
+    <img src="./img/gatopx.png" class="pixel-deco deco-11" alt="">
+    <img src="./img/SENAIpx.png" class="pixel-deco deco-12" alt="">
+  </div>
 
-  <!-- Imagens extras espalhadas em volta (substitua o 'src' com suas imagens) -->
-  <img src="/img/deco1.png" alt="" class="deco-img deco-1">
-  <img src="/img/deco2.png" alt="" class="deco-img deco-2">
-  <img src="/img/deco3.png" alt="" class="deco-img deco-3">
-  <img src="/img/deco4.png" alt="" class="deco-img deco-4">
-
-  <header>
-    <h1>Task Quest! ⚔️</h1>
-    <p>Conquiste o seu dia tarefa por tarefa!</p>
+  <header class="site-header">
+    <div class="header-badge">PLAYER 1</div>
+    <h1>Task Quest!</h1>
+    <p>Conquiste o seu dia, uma missão por vez.</p>
   </header>
 
-  <!-- Overlay simplificado apenas com a imagem -->
-  <div id="feedback-overlay" class="feedback-overlay" hidden>
-    <img id="feedback-image" src="" alt="Feedback da ação">
-  </div>
+  <main class="app-shell">
+    <section class="pixel-card mission-form-card" aria-labelledby="form-title">
+      <div class="card-topbar">
+        <div>
+          <span class="eyebrow">CENTRAL DE MISSÕES</span>
+          <h2 id="form-title">Nova Missão</h2>
+        </div>
+        <div class="pixel-status" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
 
-  <!-- Container principal que alinha as imagens laterais e o conteúdo -->
-  <div class="content-wrapper">
-    
-    <!-- Imagem colada ao lado esquerdo -->
-    <img class="side-image" src="/img/parte1.png" alt="parte1">
+      <form id="task-form" novalidate>
+        <input type="hidden" id="task-id">
 
-    <main>
-      <section aria-labelledby="form-title" class="card">
-        <h2 id="form-title">🎮 Nova Missão</h2>
-        
-        <form id="task-form">
-          <input type="hidden" id="task-id">
-
-          <div class="form-group">
-            <label for="task-title">Título da Missão *</label>
-            <input 
-              type="text" 
-              id="task-title" 
-              name="title" 
-              placeholder="Ex: Derrotar o dragão da procrastinação" 
-              required
-            >
+        <div class="form-grid">
+          <div class="form-group form-group-title">
+            <label for="task-title">Título da missão <strong>*</strong></label>
+            <div class="pixel-input-wrap">
+              <span class="field-prefix">&gt;</span>
+              <input
+                type="text"
+                id="task-title"
+                name="title"
+                maxlength="80"
+                placeholder="Ex: Finalizar o projeto"
+                autocomplete="off"
+                required
+              >
+            </div>
+            <small>Até 80 caracteres.</small>
           </div>
 
-          <div class="form-group">
-            <label for="task-description">Detalhes da Aventura</label>
-            <textarea 
-              id="task-description" 
-              name="description" 
-              rows="3" 
-              placeholder="Opcional: Traga poções e equipamentos..."
+          <div class="form-group form-group-description">
+            <label for="task-description">Detalhes da aventura</label>
+            <textarea
+              id="task-description"
+              name="description"
+              rows="4"
+              maxlength="300"
+              placeholder="Descreva os objetivos, lembretes ou etapas da missão..."
             ></textarea>
+            <div class="field-footer">
+              <small>Opcional</small>
+              <small><span id="description-count">0</span>/300</small>
+            </div>
           </div>
-
-          <div class="button-group">
-            <button type="submit" id="btn-save" class="btn btn-primary">🚀 Lançar Missão</button>
-            <button type="button" id="btn-cancel" class="btn btn-danger" hidden>❌ Cancelar</button>
-          </div>
-        </form>
-      </section>
-
-      <section aria-labelledby="list-title" class="card">
-        <h2 id="list-title">📜 Quadro de Missões</h2>
-
-        <div id="state-loading" role="status" aria-live="polite" class="status-msg">
-          <p>🔮 Invocando suas missões do servidor...</p>
         </div>
 
-        <div id="state-empty" class="status-msg" hidden>
-          <p>🎉 Nenhuma missão pendente! Você venceu por hoje!</p>
+        <div class="form-actions">
+          <button type="submit" id="btn-save" class="pixel-btn pixel-btn-primary">
+            <span class="btn-icon">+</span>
+            <span id="btn-save-text">Lançar Missão</span>
+          </button>
+          <button type="button" id="btn-cancel" class="pixel-btn pixel-btn-muted" hidden>
+            Cancelar edição
+          </button>
         </div>
+      </form>
+    </section>
 
-        <div id="state-error" role="alert" class="status-msg error" hidden>
-          <p>💥 Ops! O monstro da rede interrompeu a conexão com a API.</p>
-          <button type="button" id="btn-retry" class="btn btn-warning">🔄 Tentar Novamente</button>
+    <section class="pixel-card mission-list-card" aria-labelledby="list-title">
+      <div class="card-topbar list-heading">
+        <div>
+          <span class="eyebrow">INVENTÁRIO</span>
+          <h2 id="list-title">Quadro de Missões</h2>
         </div>
+        <span id="task-counter" class="task-counter">0 MISSÕES</span>
+      </div>
 
-        <ul id="task-list" aria-label="Lista de tarefas">
-        </ul>
-      </section>
-    </main>
+      <div id="state-loading" role="status" aria-live="polite" class="status-msg">
+        <span class="pixel-loader" aria-hidden="true"></span>
+        <p>Carregando missões...</p>
+      </div>
 
-    <!-- Imagem colada ao lado direito -->
-    <img class="side-image" src="/img/parte2.png" alt="parte2">
-    
+      <div id="state-empty" class="status-msg" hidden>
+        <p>Nenhuma missão por aqui. Crie a primeira acima!</p>
+      </div>
+
+      <div id="state-error" role="alert" class="status-msg status-error" hidden>
+        <p>Não foi possível conectar ao servidor de missões.</p>
+        <button type="button" id="btn-retry" class="pixel-btn pixel-btn-warning">Tentar novamente</button>
+      </div>
+
+      <ul id="task-list" aria-label="Lista de tarefas"></ul>
+    </section>
+  </main>
+
+  <div id="feedback-overlay" class="feedback-overlay" hidden aria-hidden="true">
+    <div class="feedback-box">
+      <img id="feedback-image" src="" alt="">
+      <p id="feedback-label"></p>
+    </div>
   </div>
 
-  <footer>
-    <p>Feito🚀</p>
-  </footer>
+  <div id="delete-modal" class="delete-modal" hidden>
+    <div class="delete-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-title">
+      <span class="eyebrow">CONFIRMAÇÃO</span>
+      <h2 id="delete-title">Apagar esta missão?</h2>
+      <p>Esta ação não pode ser desfeita.</p>
+      <div class="delete-actions">
+        <button type="button" id="delete-cancel" class="pixel-btn pixel-btn-muted">Não, voltar</button>
+        <button type="button" id="delete-confirm" class="pixel-btn pixel-btn-danger">Sim, apagar</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">TASK QUEST // SAVE YOUR DAY</footer>
 
   <script src="/assets/JS/app.js"></script>
 </body>

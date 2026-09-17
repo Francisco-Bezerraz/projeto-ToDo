@@ -1,20 +1,12 @@
 {
   "tasks": [
     {
-      "title": "teste",
+      "id": "tsk_b4b170a0-5fd4-45a0-8663-6e898f900f61",
+      "title": "Testando",
       "description": "",
-      "updatedAt": "2026-09-16T00:38:16.941Z",
-      "id": "tsk_82wdwxqzx",
       "completed": false,
-      "createdAt": "2026-09-09T00:51:00.392Z"
-    },
-    {
-      "title": "teste",
-      "description": "",
-      "updatedAt": "2026-09-09T00:51:05.992Z",
-      "id": "tsk_h0crzscwe",
-      "completed": false,
-      "createdAt": "2026-09-09T00:51:05.992Z"
+      "createdAt": "2026-09-17T23:08:34.260Z",
+      "updatedAt": "2026-09-17T23:08:34.260Z"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

@@ -1,29 +1,79 @@
 const API_URL = 'http://localhost:3000/tasks';
 
+const FEEDBACKS = {
+  concluir: {
+    src: './img/blz.jpg',
+    label: 'MISSÃO CONCLUÍDA!',
+    duration: 1500
+  },
+  editar: {
+    src: 'https://i.pinimg.com/originals/2b/cc/0e/2bcc0e11960ebe99ec2c4d402328a970.gif',
+    label: 'MODO EDIÇÃO ATIVADO!',
+    duration: 1500
+  },
+  excluir: {
+    src: './img/temCerteza.jpg',
+    label: 'MISSÃO DELETADA!',
+    duration: 1900
+  }
+};
+
 const form = document.getElementById('task-form');
 const inputId = document.getElementById('task-id');
 const inputTitle = document.getElementById('task-title');
 const inputDesc = document.getElementById('task-description');
-const btnCancel = document.getElementById('btn-cancel');
+const descriptionCount = document.getElementById('description-count');
 const btnSave = document.getElementById('btn-save');
+const btnSaveText = document.getElementById('btn-save-text');
+const btnCancel = document.getElementById('btn-cancel');
+const btnRetry = document.getElementById('btn-retry');
 
 const taskList = document.getElementById('task-list');
+const taskCounter = document.getElementById('task-counter');
 const stateLoading = document.getElementById('state-loading');
 const stateEmpty = document.getElementById('state-empty');
 const stateError = document.getElementById('state-error');
-const btnRetry = document.getElementById('btn-retry');
 
+const feedbackOverlay = document.getElementById('feedback-overlay');
+const feedbackImage = document.getElementById('feedback-image');
+const feedbackLabel = document.getElementById('feedback-label');
 
-// Controle de clicks
-
+const deleteModal = document.getElementById('delete-modal');
+const deleteConfirm = document.getElementById('delete-confirm');
+const deleteCancel = document.getElementById('delete-cancel');
 
 let tasksData = [];
-let feedbackTimeout;
+let feedbackTimer = null;
+let pendingDeleteId = null;
+let actionLocked = false;
 
+function getNowISO() {
+  return new Date().toISOString();
+}
 
-document.addEventListener('DOMContentLoaded', loadTasks);
-btnRetry.addEventListener('click', loadTasks);
-btnCancel.addEventListener('click', resetForm);
+function generateId() {
+  if (window.crypto?.randomUUID) {
+    return `tsk_${window.crypto.randomUUID()}`;
+  }
+
+  return `tsk_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+}
+
+function escapeHTML(value = '') {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+function formatDate(value) {
+  if (!value) return 'sem data';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'sem data';
+  return date.toLocaleDateString('pt-BR');
+}
 
 function showState(state) {
   stateLoading.hidden = state !== 'loading';
@@ -32,262 +82,321 @@ function showState(state) {
   taskList.hidden = state !== 'list';
 }
 
+function updateTaskCounter() {
+  const total = tasksData.length;
+  taskCounter.textContent = `${total} ${total === 1 ? 'MISSÃO' : 'MISSÕES'}`;
+}
+
 async function loadTasks() {
   showState('loading');
+
   try {
     const response = await fetch(API_URL);
-    if (!response.ok) throw new Error('Erro ao buscar dados');
-    
-    tasksData = await response.json();
-    
+    if (!response.ok) throw new Error(`Erro HTTP ${response.status}`);
+
+    const data = await response.json();
+    tasksData = Array.isArray(data) ? data : [];
+    updateTaskCounter();
+
     if (tasksData.length === 0) {
+      taskList.innerHTML = '';
       showState('empty');
-    } else {
-      renderTasks(tasksData);
-      showState('list');
+      return;
     }
+
+    renderTasks(tasksData);
+    showState('list');
   } catch (error) {
-    console.error(error);
+    console.error('Falha ao carregar tarefas:', error);
     showState('error');
   }
 }
 
 function renderTasks(tasks) {
-  taskList.innerHTML = '';
-  
-  tasks.forEach(task => {
-    const li = document.createElement('li');
-    li.className = task.completed ? 'task-completed' : '';
-    
-    const createdDate = new Date(task.createdAt).toLocaleDateString('pt-BR');
-    
-    li.innerHTML = `
-      <div class="task-content">
-        <h3 style="text-decoration: ${task.completed ? 'line-through' : 'none'}; color: ${task.completed ? '#777' : 'inherit'}">
-          ${task.title}
-        </h3>
-        ${task.description ? `<p style="font-size: 0.9em; margin-top: 5px;">${task.description}</p>` : ''}
-        <small style="font-size: 0.7em; color: #555; display: block; margin-top: 5px;">Criada em: ${createdDate}</small>
-      </div>
-      <div class="task-actions" style="display: flex; gap: 5px;">
-        <button class="btn btn-warning" onclick="toggleTask('${task.id}')" title="Marcar como concluída/pendente">
-          ${task.completed ? '↩️ Desfazer' : '✅ Concluir'}
-        </button>
-        <button class="btn" style="background-color: var(--sky-blue);" onclick="editTask('${task.id}')" title="Editar Missão">
-          ✏️ Editar
-        </button>
-        <button class="btn btn-danger" onclick="deleteTask('${task.id}')" title="Apagar Missão">
-          🗑️ Excluir
-        </button>
-      </div>
+  taskList.innerHTML = tasks.map(task => {
+    const safeId = escapeHTML(task.id);
+    const safeTitle = escapeHTML(task.title);
+    const safeDescription = escapeHTML(task.description || '');
+    const createdDate = formatDate(task.createdAt);
+    const completedClass = task.completed ? ' task-completed' : '';
+
+    return `
+      <li class="task-item${completedClass}" data-task-id="${safeId}">
+        <div class="task-content">
+          <div class="task-title-row">
+            <span class="task-check" aria-hidden="true"></span>
+            <h3>${safeTitle}</h3>
+          </div>
+          ${safeDescription ? `<p>${safeDescription}</p>` : ''}
+          <span class="task-meta">Criada em: ${createdDate}</span>
+        </div>
+
+        <div class="task-actions">
+          <button
+            type="button"
+            class="pixel-btn pixel-btn-warning"
+            data-action="toggle"
+            data-id="${safeId}"
+          >
+            ${task.completed ? 'Desfazer' : 'Concluir'}
+          </button>
+
+          <button
+            type="button"
+            class="pixel-btn pixel-btn-info"
+            data-action="edit"
+            data-id="${safeId}"
+          >
+            Editar
+          </button>
+
+          <button
+            type="button"
+            class="pixel-btn pixel-btn-danger"
+            data-action="delete"
+            data-id="${safeId}"
+          >
+            Excluir
+          </button>
+        </div>
+      </li>
     `;
-    
-    taskList.appendChild(li);
-  });
+  }).join('');
 }
 
-const generateId = () => 'tsk_' + Math.random().toString(36).substr(2, 9);
-const getNowISO = () => new Date().toISOString();
-
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  
-  const titleValue = inputTitle.value.trim();
-  const descValue = inputDesc.value.trim();
-  const idValue = inputId.value;
-
-  if (!titleValue) {
-    alert('O título da missão é obrigatório!');
-    return;
+async function request(url, options = {}) {
+  const response = await fetch(url, options);
+  if (!response.ok) {
+    throw new Error(`Erro HTTP ${response.status}`);
   }
+  return response;
+}
 
-  const taskData = {
-    title: titleValue,
-    description: descValue,
-    updatedAt: getNowISO()
-  };
-
-  try {
-    if (idValue) {
-      await updateTaskAPI(idValue, taskData);
-    } else {
-      taskData.id = generateId();
-      taskData.completed = false;
-      taskData.createdAt = getNowISO();
-      await createTaskAPI(taskData);
-    }
-    
-    resetForm();
-    await loadTasks(); 
-  } catch (error) {
-    alert('Ocorreu um erro ao salvar a missão. O monstro da rede atacou!');
-    console.error(error);
-  }
-});
-
-async function createTaskAPI(task) {
-  const response = await fetch(API_URL, {
+function createTaskAPI(task) {
+  return request(API_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(task)
   });
-  if (!response.ok) throw new Error('Erro ao criar tarefa');
 }
 
-window.editTask = (id) => {
-  const task = tasksData.find(t => t.id === id);
-  if (!task) return;
-
-  showFeedback('editar');
-
-  inputId.value = task.id;
-  inputTitle.value = task.title;
-  inputDesc.value = task.description || ''; 
-  
-  btnSave.innerHTML = '💾 Salvar Alterações';
-  btnCancel.hidden = false;
-  
-  document.getElementById('form-title').scrollIntoView({ behavior: 'smooth' });
-};
-
-async function updateTaskAPI(id, updates) {
-  const response = await fetch(`${API_URL}/${id}`, {
+function updateTaskAPI(id, updates) {
+  return request(`${API_URL}/${encodeURIComponent(id)}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(updates)
   });
-  if (!response.ok) throw new Error('Erro ao atualizar tarefa');
 }
 
-window.toggleTask = async (id) => {
-  const task = tasksData.find(t => t.id === id);
-  if (!task) return;
+function deleteTaskAPI(id) {
+  return request(`${API_URL}/${encodeURIComponent(id)}`, {
+    method: 'DELETE'
+  });
+}
 
-  if (!task.completed) {
-    showFeedback('concluir');
-  }
-
-  const updates = {
-    completed: !task.completed,
-    updatedAt: getNowISO()
-  };
-
-  try {
-    await updateTaskAPI(id, updates);
-    await loadTasks();
-  } catch (error) {
-    alert('Erro ao atualizar o status da missão.');
-  }
-};
-
-// Nova lógica que aciona a confirmação imersiva
-window.deleteTask = (id) => {
-  askDeleteConfirm(id);
-};
-
-// Executa a deleção na API apenas se o usuário confirmar
-async function executeDelete(id) {
-  try {
-    const response = await fetch(`${API_URL}/${id}`, {
-      method: 'DELETE'
-    });
-    if (!response.ok) throw new Error('Erro ao deletar tarefa');
-    
-    // Após deletar, mostra o feedback de sucesso de exclusão por 3 segundos
-    showFeedback('excluir');
-    await loadTasks();
-  } catch (error) {
-    alert('Erro ao excluir a missão.');
-    console.error(error);
-  }
+function setFormMode(mode) {
+  const editing = mode === 'edit';
+  btnSaveText.textContent = editing ? 'Salvar Alterações' : 'Lançar Missão';
+  btnCancel.hidden = !editing;
 }
 
 function resetForm() {
   form.reset();
   inputId.value = '';
-  btnSave.innerHTML = '🚀 Lançar Missão';
-  btnCancel.hidden = true;
+  descriptionCount.textContent = '0';
+  setFormMode('create');
 }
 
+function editTask(id) {
+  const task = tasksData.find(item => String(item.id) === String(id));
+  if (!task) return;
 
-function askDeleteConfirm(id) {
-  const feedbackOverlay = document.getElementById('feedback-overlay');
-  const feedbackImage = document.getElementById('feedback-image');
+  inputId.value = task.id;
+  inputTitle.value = task.title || '';
+  inputDesc.value = task.description || '';
+  descriptionCount.textContent = String(inputDesc.value.length);
+  setFormMode('edit');
 
-  // Limpa qualquer timer ativo
-  if (feedbackTimeout) clearTimeout(feedbackTimeout);
+  showFeedback('editar');
+  document.querySelector('.mission-form-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  window.setTimeout(() => inputTitle.focus(), 250);
+}
 
-  // Define a imagem da bomba/explosão para a pergunta
-  feedbackImage.src = './img/temCerteza.jpg';
-  
-  // Mostra o overlay e trava a animação para ele NÃO sumir sozinho
-  feedbackOverlay.hidden = false;
-  feedbackOverlay.style.animation = 'none';
+async function toggleTask(id, triggerButton) {
+  const task = tasksData.find(item => String(item.id) === String(id));
+  if (!task || actionLocked) return;
 
-  // Remove botões de confirmação antigos se existirem
-  const oldBtns = document.getElementById('custom-confirm-btns');
-  if (oldBtns) oldBtns.remove();
+  actionLocked = true;
+  triggerButton.disabled = true;
 
-  // Cria a área dos botões de Sim/Não
-  const btnContainer = document.createElement('div');
-  btnContainer.id = 'custom-confirm-btns';
-  btnContainer.style.display = 'flex';
-  btnContainer.style.gap = '20px';
-  btnContainer.style.marginTop = '30px'; 
+  const nextCompleted = !task.completed;
 
-  const btnYes = document.createElement('button');
-  btnYes.className = 'btn btn-danger';
-  btnYes.textContent = '🔥 Sim, Detonar!';
-  btnYes.onclick = async () => {
-    btnContainer.remove(); 
-    await executeDelete(id);
-  };
+  try {
+    await updateTaskAPI(id, {
+      completed: nextCompleted,
+      updatedAt: getNowISO()
+    });
 
-  const btnNo = document.createElement('button');
-  btnNo.className = 'btn btn-warning';
-  btnNo.textContent = '🛡️ Não, Valeu';
-  btnNo.onclick = () => {
-    btnContainer.remove();
-    feedbackOverlay.hidden = true;
-  };
+    if (nextCompleted) {
+      showFeedback('concluir');
+    }
 
-  btnContainer.appendChild(btnNo);
-  btnContainer.appendChild(btnYes);
-  feedbackOverlay.appendChild(btnContainer);
+    await loadTasks();
+  } catch (error) {
+    console.error('Falha ao atualizar missão:', error);
+    alert('Não foi possível atualizar a missão. Tente novamente.');
+  } finally {
+    actionLocked = false;
+    triggerButton.disabled = false;
+  }
+}
+
+function openDeleteModal(id) {
+  if (actionLocked) return;
+  pendingDeleteId = id;
+  deleteModal.hidden = false;
+  document.body.style.overflow = 'hidden';
+  deleteCancel.focus();
+}
+
+function closeDeleteModal() {
+  pendingDeleteId = null;
+  deleteModal.hidden = true;
+  document.body.style.overflow = '';
+}
+
+async function confirmDelete() {
+  if (!pendingDeleteId || actionLocked) return;
+
+  const id = pendingDeleteId;
+  actionLocked = true;
+  deleteConfirm.disabled = true;
+  deleteCancel.disabled = true;
+
+  try {
+    await deleteTaskAPI(id);
+    closeDeleteModal();
+    showFeedback('excluir');
+    await loadTasks();
+  } catch (error) {
+    console.error('Falha ao excluir missão:', error);
+    alert('Não foi possível excluir a missão. Tente novamente.');
+  } finally {
+    actionLocked = false;
+    deleteConfirm.disabled = false;
+    deleteCancel.disabled = false;
+  }
+}
+
+function hideFeedback() {
+  if (feedbackTimer) {
+    clearTimeout(feedbackTimer);
+    feedbackTimer = null;
+  }
+
+  feedbackOverlay.classList.remove('is-visible');
+  feedbackOverlay.hidden = true;
+  feedbackOverlay.setAttribute('aria-hidden', 'true');
+  feedbackImage.removeAttribute('src');
 }
 
 function showFeedback(action) {
-  const feedbackOverlay = document.getElementById('feedback-overlay');
-  const feedbackImage = document.getElementById('feedback-image');
+  const feedback = FEEDBACKS[action];
+  if (!feedback) return;
 
-  const feedbacks = {
-    concluir: { img: './img/blz.jpg' },
-    editar: { img: 'https://i.pinimg.com/originals/2b/cc/0e/2bcc0e11960ebe99ec2c4d402328a970.gif' },
-    excluir: { img: 'https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExOThweTNnYnVpM3VnbHpjdnQ0c2NwbGF6amMyaG1sYXd5cXF6YXZvNyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/HhTXt43pk1I1W/giphy.gif' }
-  };
+  hideFeedback();
 
-  const fb = feedbacks[action];
-  if (!fb) return;
-
-  feedbackImage.src = fb.img;
-  
-  
-  const oldBtns = document.getElementById('custom-confirm-btns');
-  if (oldBtns) oldBtns.remove();
-
+  feedbackImage.src = feedback.src;
+  feedbackImage.alt = feedback.label;
+  feedbackLabel.textContent = feedback.label;
   feedbackOverlay.hidden = false;
+  feedbackOverlay.setAttribute('aria-hidden', 'false');
 
- 
-  feedbackOverlay.style.animation = 'none';
-  void feedbackOverlay.offsetWidth; 
-  feedbackOverlay.style.animation = 'fadeSlowly 10s ease-in-out forwards';
+  requestAnimationFrame(() => {
+    feedbackOverlay.classList.add('is-visible');
+  });
 
-  if (feedbackTimeout) {
-    clearTimeout(feedbackTimeout);
+  feedbackTimer = window.setTimeout(hideFeedback, feedback.duration);
+}
+
+form.addEventListener('submit', async event => {
+  event.preventDefault();
+  if (actionLocked) return;
+
+  const title = inputTitle.value.trim();
+  const description = inputDesc.value.trim();
+  const id = inputId.value.trim();
+
+  if (!title) {
+    inputTitle.focus();
+    return;
   }
 
- 
-  feedbackTimeout = setTimeout(() => {
-    feedbackOverlay.hidden = true;
-  }, 700);
-}
+  actionLocked = true;
+  btnSave.disabled = true;
+
+  try {
+    if (id) {
+      await updateTaskAPI(id, {
+        title,
+        description,
+        updatedAt: getNowISO()
+      });
+    } else {
+      await createTaskAPI({
+        id: generateId(),
+        title,
+        description,
+        completed: false,
+        createdAt: getNowISO(),
+        updatedAt: getNowISO()
+      });
+    }
+
+    resetForm();
+    await loadTasks();
+  } catch (error) {
+    console.error('Falha ao salvar missão:', error);
+    alert('Não foi possível salvar a missão. Verifique se a API está ligada.');
+  } finally {
+    actionLocked = false;
+    btnSave.disabled = false;
+  }
+});
+
+taskList.addEventListener('click', event => {
+  const button = event.target.closest('button[data-action]');
+  if (!button) return;
+
+  const { action, id } = button.dataset;
+
+  if (action === 'edit') editTask(id);
+  if (action === 'toggle') toggleTask(id, button);
+  if (action === 'delete') openDeleteModal(id);
+});
+
+inputDesc.addEventListener('input', () => {
+  descriptionCount.textContent = String(inputDesc.value.length);
+});
+
+btnCancel.addEventListener('click', resetForm);
+btnRetry.addEventListener('click', loadTasks);
+deleteCancel.addEventListener('click', closeDeleteModal);
+deleteConfirm.addEventListener('click', confirmDelete);
+
+feedbackOverlay.addEventListener('click', event => {
+  if (event.target === feedbackOverlay) hideFeedback();
+});
+
+deleteModal.addEventListener('click', event => {
+  if (event.target === deleteModal && !actionLocked) closeDeleteModal();
+});
+
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') {
+    if (!feedbackOverlay.hidden) hideFeedback();
+    if (!deleteModal.hidden && !actionLocked) closeDeleteModal();
+  }
+});
+
+document.addEventListener('DOMContentLoaded', loadTasks);
