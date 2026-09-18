@@ -6,15 +6,15 @@
       "description": "",
       "completed": false,
       "createdAt": "2026-09-17T23:33:58.548Z",
-      "updatedAt": "2026-09-18T00:24:42.463Z"
+      "updatedAt": "2026-09-18T00:59:24.398Z"
     },
     {
       "id": "tsk_7a9f9ce7-f9ab-4673-a622-1a80be75041a",
       "title": "teste",
       "description": "",
-      "completed": true,
+      "completed": false,
       "createdAt": "2026-09-17T23:34:00.594Z",
-      "updatedAt": "2026-09-18T00:20:19.800Z"
+      "updatedAt": "2026-09-18T00:59:22.238Z"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
