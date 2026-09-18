@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/CSS/style.css">
+  <link rel="stylesheet" href="/assets/CSS/style.css?v=6">
 </head>
 <body>
   <div class="pixel-bg" aria-hidden="true">
@@ -80,6 +80,15 @@
             </div>
           </div>
         </div>
+        <div id="edit-feedback" class="edit-feedback" hidden aria-live="polite">
+          <img
+            src="https://i.pinimg.com/originals/2b/cc/0e/2bcc0e11960ebe99ec2c4d402328a970.gif"
+            alt="Modo de edição ativado"
+          >
+          <span>MODO EDIÇÃO ATIVADO!</span>
+        </div>
+
+
 
         <div class="form-actions">
           <button type="submit" id="btn-save" class="pixel-btn pixel-btn-primary">
@@ -119,17 +128,11 @@
       <ul id="task-list" aria-label="Lista de tarefas"></ul>
     </section>
   </main>
-
-  <div id="feedback-overlay" class="feedback-overlay" hidden aria-hidden="true">
-    <div class="feedback-box">
-      <img id="feedback-image" src="" alt="">
-      <p id="feedback-label"></p>
-    </div>
-  </div>
-
-  <div id="delete-modal" class="delete-modal" hidden>
+<div id="delete-modal" class="delete-modal" hidden>
     <div class="delete-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-title">
-      <span class="eyebrow">CONFIRMAÇÃO</span>
+      
+      <img src="/img/temCerteza.jpg" alt="Confirmação de exclusão" class="delete-feedback-image">
+<span class="eyebrow">CONFIRMAÇÃO</span>
       <h2 id="delete-title">Apagar esta missão?</h2>
       <p>Esta ação não pode ser desfeita.</p>
       <div class="delete-actions">
@@ -141,6 +144,6 @@
 
   <footer class="site-footer">TASK QUEST // SAVE YOUR DAY</footer>
 
-  <script src="/assets/JS/app.js"></script>
+  <script src="/assets/JS/app.js?v=6"></script>
 </body>
 </html>
